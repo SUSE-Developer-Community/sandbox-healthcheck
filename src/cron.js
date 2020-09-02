@@ -27,30 +27,33 @@ cron.schedule(SCHEDULE, async function() {
   try {
     //TODO instrument this with OpenTelemetry
     running = true
-    
-    tests.forEach(async test => {
-      try {
-        winston.warn(`About to Run: ${test.Name}`)
-        
-        await test.run({logger: winston, parentSpan: null, })
-        winston.warn(`Finished: ${test.Name}`)
-
-      } catch (e){
-        winston.warn(`Error from: ${test.Name}`)
-        winston.error(e)
-
-        if(test.breakOnceOnException) {
-          if (!test.breakForeverOnException){
-            running = false
-          }
-          throw ('Stopping Tests!')
-        }
-      }
-    })
-    
+    await runAllTests()
     running = false
   } catch (e) {
     winston.error(e)
   }
-
 })
+
+const runAllTests = async () => {
+
+  tests.forEach(async test => {
+    try {
+      winston.warn(`About to Run: ${test.Name}`)
+      
+      await test.run({logger: winston, parentSpan: null, })
+      winston.warn(`Finished: ${test.Name}`)
+
+    } catch (e){
+      winston.warn(`Error from: ${test.Name}`)
+      winston.error(e)
+
+      if(test.breakOnceOnException) {
+        if (!test.breakForeverOnException){
+          winston.warn('Ending Tests!')
+          running = false
+        }
+        throw ('Stopping Test Run!')
+      }
+    }
+  })
+}

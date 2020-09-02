@@ -1,14 +1,13 @@
-export const BreakOnceOnException = false
-export const BreakForeverOnException = false
-export const Name = 'Sample Test'
+import BasicTest from '../BasicTest.js'
+export default class SampleTest extends BasicTest{
 
-const run = async ({logger}) => {
-  logger.debug('Sample Test Running')
-}
+  constructor(){
+    super()
+  }
 
-export default {
-  Name: 'Sample Test',
-  run,
-  BreakOnceOnException: false,
-  BreakForeverOnException: false
+  get Name () {return 'SampleTest'}
+
+  async run ({logger}) {
+    logger.debug('Sample Test Running')
+  }
 }
