@@ -65,12 +65,27 @@ const runAllTests = async () => {
       }
     }
   }
-  console.log(testRuns.length)
-  console.log(testOutputs.length)
   testRuns.push(JSON.parse(JSON.stringify(testOutputs)))
 }
 runAllTests()
+
+
+
+
+
+
 // This is terrible code... Ignore until can be rewritten
+
+
+const buildDataPayload = (run)=>{
+  switch (curr.payloadType) {
+    case 'img':
+      return `<a href='data:image/png;base64,${curr.payload}' >Img</a>`
+    case 'error':
+    default:
+      return `<span title="${curr.payload.replace('"','\\"')}">Text</span>`
+  }
+}
 const buildTableForRun = (run)=>(`
   <table>
     ${run.reduce((acc,curr)=>(`${acc}
@@ -86,8 +101,6 @@ const buildTableForRun = (run)=>(`
 
 const app = express()
 app.get('/', async (req, res) => {
-
-  console.log(testRuns)
 
   const testListHtml = testRuns.map(buildTableForRun)
     .reduce((acc,curr)=>(`${acc}<li>${curr}</li>`),'')
