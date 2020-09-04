@@ -1,6 +1,7 @@
 import tests from './tests.js'
 import cron from 'node-cron'
 import winston from  'winston'
+import express from 'express'
 
 winston.level = process.env.LOG_LEVEL || 'debug'
 winston.add(new winston.transports.Console({
@@ -9,6 +10,10 @@ winston.add(new winston.transports.Console({
 }))
 
 winston.debug('Cron starting')
+
+
+
+const testRuns = []
 
 const SCHEDULE = process.env.CRON || '* * * * *'
 
@@ -36,11 +41,15 @@ cron.schedule(SCHEDULE, async function() {
 
 const runAllTests = async () => {
 
-  tests.forEach(async test => {
+  let testOutputs = []
+
+  for (let i = 0; i<tests.length; i++) {
     try {
+      let test = tests[i]
       winston.warn(`About to Run: ${test.Name}`)
       
-      await test.run({logger: winston, parentSpan: null, })
+      const res = await test.run({logger: winston})
+      testOutputs = testOutputs.concat(res)
       winston.warn(`Finished: ${test.Name}`)
 
     } catch (e){
@@ -55,5 +64,43 @@ const runAllTests = async () => {
         throw ('Stopping Test Run!')
       }
     }
-  })
+  }
+  console.log(testRuns.length)
+  console.log(testOutputs.length)
+  testRuns.push(JSON.parse(JSON.stringify(testOutputs)))
 }
+runAllTests()
+// This is terrible code... Ignore until can be rewritten
+const buildTableForRun = (run)=>(`
+  <table>
+    ${run.reduce((acc,curr)=>(`${acc}
+    <tr>
+      <td>${curr.testName}<td>
+      <td>${curr.time}<td>
+      <td>${curr.status}<td>
+      <td><a href='data:image/png;base64,${curr.payload}' >Img</a><td>
+    </tr>`),'')}
+  </table>
+`)
+
+
+const app = express()
+app.get('/', async (req, res) => {
+
+  console.log(testRuns)
+
+  const testListHtml = testRuns.map(buildTableForRun)
+    .reduce((acc,curr)=>(`${acc}<li>${curr}</li>`),'')
+
+
+  res.send(`<html>
+    <head><title>Status</title></head>
+    <body>
+      <ul>
+        ${testListHtml}
+      </ul>
+    </body>
+  </html>`)
+})
+
+app.listen(8080, () => winston.info('App listening'))

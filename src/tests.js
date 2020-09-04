@@ -1,5 +1,7 @@
-import SampleTest from './tests/SampleTest.js'
+import SimpleWebRequestTest from './tests/SimpleWebRequestTest'
 
 export default [
-  SampleTest
-].map(a=>(new a()))
+  new SimpleWebRequestTest('https://stratos.cap.explore.suse.dev/login'),
+  new SimpleWebRequestTest('https://gettingstarted.cap.explore.suse.dev'),
+  new SimpleWebRequestTest('https://developer.suse.com')
+]
