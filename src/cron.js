@@ -44,8 +44,8 @@ const runAllTests = async () => {
   let testOutputs = []
 
   for (let i = 0; i<tests.length; i++) {
+    let test = tests[i]
     try {
-      let test = tests[i]
       winston.warn(`About to Run: ${test.Name}`)
       
       const res = await test.run({logger: winston})

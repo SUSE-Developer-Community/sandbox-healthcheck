@@ -29,9 +29,11 @@
   },
   "dependencies": {
     "axios": "^0.20.0",
+    "cloudfoundry-uaa-client": "^1.0.1-p1",
     "express": "^4.17.1",
     "node-cron": "^2.0.3",
     "node-html-to-image": "^3.0.1",
+    "qs": "^6.9.4",
     "winston": "^3.3.3"
   }
 }
